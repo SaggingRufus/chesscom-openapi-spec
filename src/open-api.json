@@ -1,0 +1,613 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Rufus's Spec for the Chess.com Public API",
+    "license": {
+      "name": "AGPL-3.0-or-later",
+      "url": "https://github.com/SaggingRufus/chesscom-openapi-spec/blob/main/LICENSE"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.chess.com/pub"
+    }
+  ],
+  "paths": {
+    "/player/{username}": {
+      "get": {
+        "summary": "Get a Player's Profile",
+        "description": "Retrieve profile information about a player",
+        "operationId": "getUsername",
+        "tags": [
+          "Player Data"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "description": "The usename of the player to retrieve",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expected response to a valid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Player"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }            
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/titled/{titleId}": {
+      "get": {
+        "summary": "Get Players With A Title",
+        "description": "List of titled-player usernames by title abbreviation",
+        "operationId": "getPlayersByTitle",
+        "tags": [
+          "Player Data"
+        ],
+        "parameters": [
+          {
+            "name": "titleId",
+            "in": "path",
+            "required": true,
+            "description": "One of the following title ids: GM, WGM, IM, WIM, FM, WFM, NM, WNM, CM, WCM",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expected response to a valid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "Array of usernames",
+                  "example": "[\"user1\", \"user2\"]",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }            
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/player/{username}/stats": {
+      "get": {
+        "summary": "Get Player Statistics",
+        "description": "Get ratings, win/loss, and other stats about a player's game play, tactics, lessons and Puzzle Rush score.",
+        "operationId": "getPlayerStats",
+        "tags": [
+          "Player Data"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "description": "The usename of the player to retrieve stats for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expected response to a valid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stats"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }            
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/player/{username}/is-online": {
+      "get": {
+        "summary": "Is the current Player online",
+        "description": "Tells if a user has been online in the last five minutes. ",
+        "operationId": "getIsPlayerOnline",
+        "deprecated": true,
+        "tags": [
+          "Player Data"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "description": "The usename of the player to retrieve stats for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expected response to a valid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean",
+                  "description": "A true/false representation of online status"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }            
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }                   
+  },
+
+  "security":[],
+
+  "components": {
+    "schemas": {
+      "Player": {
+        "type": "object",
+        "required": [
+          "@id",
+          "url",
+          "username",
+          "player_id",
+          "status",
+          "country"
+        ],
+        "properties": {
+          "@id": {
+                        "type": "string",
+            "format": "uri",
+            "description": "The location of this profile (always self-referencing)",
+            "example": "https://api.chess.com/pub/player/erik"
+          },
+          "url": {
+                        "type": "string",
+            "format": "uri",
+            "description": "The chess.com user's profile page (the username is displayed with the original letter case)",
+            "example": "https://www.chess.com/member/username"
+
+          },
+          "username": {
+            "type": "string",
+            "description": "The username of this player",
+            "example": "username"
+          },
+          "player_id": {
+                        "type": "integer",
+            "description": "the non-changing Chess.com ID of this player",
+            "example": "41"
+          },
+          "title": {
+                        "type": "string",
+            "description": "Abbreviation of chess title, if any",
+            "example": "GM"
+
+          },
+          "status":{
+            "type": "string",
+            "description": "One of the following account statuses: closed, closed:fair_play_violations, basic, premium, mod, staff",
+            "example": "basic"
+            
+          },
+          "name": {
+            "type": "string",
+            "description": "The personal first and last name",
+            "example": "John Johnson"
+            
+          },
+          "avatar": {
+                        "type": "string",
+            "format": "uri",
+            "description": "URL of a 200x200 image",
+            "example": 	"https://images.chesscomfiles.com/uploads/v1/user/41.5434c4ff.200x200o.5b102889d835.jpeg"
+
+          },
+          "location": {
+            "type": "string",
+            "description": "the city or location",
+            "example": "New York"
+            
+          },
+          "country": {
+                        "type": "string",
+            "format": "uri",
+            "description": "API location of this player's country's profile",
+            "example": "https://api.chess.com/pub/country/CA"
+
+          },
+          "joined": {
+                        "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of registration on Chess.com",
+            "example": "1178556600"
+
+          },
+          "last_online":{ 
+                        "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of the most recent login",
+            "example": "1500661803"
+
+          },
+          "followers": {
+            "type": "integer",
+            "description": "The number of players tracking this player's activity",
+            "example": "0"
+            
+          },
+          "is_streamer": {
+            "type": "boolean",
+            "description": "If the member is a Chess.com streamer",
+            "example": "false"
+            
+          },
+          "verified": {
+            "type": "boolean",
+            "description": "Is not described by chess.com, but appears is response payload",
+            "example": "false"
+          },
+          "twitch_url": {
+                        "type": "string",
+            "format": "uri",
+            "description": "Twitch.tv URL",
+            "example": "https://www.twitch.tv/chesscom"
+
+          },
+          "fide": {
+            "type": "integer",
+            "description": "FIDE rating",
+            "example": "1000",
+            "deprecated": true
+          },
+          "league": {
+            "type": "string",
+            "description": "The name of the league the player is current in",
+            "example": "Legend"
+          },
+          "streaming_platforms": {
+            "type":"array",
+            "items": {
+              "$ref": "#/components/schemas/StreamingPlatforms"
+            }
+          }
+        }
+      },
+      "StreamingPlatforms": {
+        "type": "object",
+        "description": "A streaming platform definition",
+        "properties": {
+          "platform_type": {
+            "type": "string",
+            "description": "The name of the streaming platform",
+            "example": "twitch"
+          },
+          "channel_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The streaming platform channel URL",
+            "example": "https://www.twitch.tv/chesscom"
+          }
+        }
+      },      
+      "Stats": {
+        "type": "object",
+        "description": "The response contains many \"stats objects\" each identified by the ratings-type from the game, composed of the rules code, an underscore, and the time-class code. If a person has not played a particular game type, no stats object will be present for it.",
+        "example": "[\"user1\", \"user2\"]",
+        "properties": {
+          "chess_daily": {
+            "$ref": "#/components/schemas/GameStats"
+          },
+          "chess_960": {
+            "$ref": "#/components/schemas/GameStats"
+          },
+          "chess_blitz": {
+            "$ref": "#/components/schemas/GameStats"
+          },
+          "tatics": {
+            "$ref": "#/components/schemas/LearningStats"
+          },
+          "puzzle_rush": {
+            "$ref": "#/components/schemas/PuzzleRushStats"
+          },
+          "lessons":{
+            "$ref": "#/components/schemas/LearningStats"
+          },
+          "fide": {
+            "type": "integer",
+            "description": "A FIDE Rating that is not defined in the Chess.com documentation for their API",
+            "example": "1000"
+          }
+        }
+      },      
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "GameStats": {
+        "type": "object",
+        "properties": {
+          "last": {
+            "type": "object",
+            "description": "The current stats",
+            "properties": {
+              "date": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Timestamp of the last rate game",
+                "example": "1509709165"
+              },
+              "rating": {
+                "type": "integer",
+                "description": "Most recent rating",
+                "example": "1000"
+              },
+              "rd": {
+                "type": "integer",
+                "description": "The Glicko \"RD\" value used to calculate rating changes",
+                "example": "58"
+              }
+            }
+          },
+          "best":{
+            "type": "object",
+            "description": "Best rating achieved by a win",
+            "properties": {
+              "date": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Timestamp of the last rate game",
+                "example": "1509709165"
+              },
+              "rating": {
+                "type": "integer",
+                "description": "Most recent rating",
+                "example": "1000"
+              },
+              "game": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL of the best-win game",
+                "example": "https://www.chess.com/game/daily/26087202"
+              }
+            }
+          },
+          "record":{
+            "type": "object",
+            "description": "Summary of all games playe",
+            "properties": {
+              "win": {
+                "type": "integer",
+                "description": "Number of games won",
+                "example": "10"
+              },
+              "loss": {
+                "type": "integer",
+                "description": "Number of games lost",
+                "example": "10"
+              },
+              "draw": {
+                "type": "integer",
+                "description": "Number of games drawn",
+                "example": "10"
+              },
+              "time_per_move": {
+                "type": "integer",
+                "description": "Integer number of seconds per average move",
+                "example": "18799"
+              },
+              "timeout_percent": {
+                "type": "number",
+                "format": "float",
+                "description": "Timeout percentage in the last 90 days",
+                "example": "9.99"
+              }
+            }
+          },
+          "tournament": {
+            "type": "object",
+            "description": "Summary of tounaments participated in",
+            "properties": {
+              "count": {
+                "type": "integer",
+                "description": "Number of tournaments joined",
+                "example": "20"
+              },
+              "withdraw": {
+                "type": "integer",
+                "description": "Number of tournaments withdrawn from",
+                "example": "0"
+              },
+              "points": {
+                "type": "integer",
+                "description": "Total number of points earned in tournaments",
+                "example": "39"
+              },
+              "highest_finish": {
+                "type": "integer",
+                "description": "Best tournemant place",
+                "example": "1"
+              }
+            }
+          }          
+        }
+      },
+      "LearningStats": {
+        "type": "object",
+        "properties": {
+          "highest": {
+            "type": "object",
+            "description": "The highest rating achieved",
+            "properties": {
+              "rating": {
+                "type": "integer",
+                "description": "Highest rating value",
+                "example": "1000"
+              },
+              "date": {
+                "type": "integer",
+                "description": "Timestamp of when rating was received"
+              }
+            }
+          },
+          "lowest": {
+            "type": "object",
+            "description": "The highest rating achieved",
+            "properties": {
+              "rating": {
+                "type": "integer",
+                "description": "Highest rating value",
+                "example": "1000"
+              },
+              "date": {
+                "type": "integer",
+                "description": "Timestamp of when rating was received"
+              }
+            }
+          }          
+        }
+      },
+      "PuzzleRushStats": {
+        "type": "object",
+        "properties": {
+          "daily": {
+            "type": "object",
+            "description": "The highest rating achieved",
+            "properties": {
+              "total_attempts": {
+                "type": "integer",
+                "description": "Total number of attempts",
+                "example": "5"
+              },
+              "score": {
+                "type": "integer",
+                "description": "Daily Puzzle Rush score"
+              }
+            }
+          },
+          "best": {
+            "type": "object",
+            "description": "The highest rating achieved",
+            "properties": {
+              "total_attempts": {
+                "type": "integer",
+                "description": "Total number of attempts",
+                "example": "6"
+              },
+              "score": {
+                "type": "integer",
+                "description": "Best Puzzle Rush score"
+              }
+            }
+          }          
+        }
+      }      
+    }
+  }
+}
